@@ -433,14 +433,16 @@ namespace lgfx
       return false;
     }
 
-    endWrite();
+     endWrite();
 
     return res;
+    //return true;
   }
 
   bool Panel_M5HDMI::_init_resolution(void)
   {
-    static constexpr int32_t OUTPUT_CLOCK = 74250000; // 74.25MHz
+    //static constexpr int32_t OUTPUT_CLOCK = 74250000; // 74.25MHz
+    static constexpr int32_t OUTPUT_CLOCK = 27000000; // 74.25MHz
     int32_t TOTAL_RESOLUTION = OUTPUT_CLOCK / _refresh_rate;
 
     int mem_width  = _cfg.memory_width ;
@@ -499,6 +501,12 @@ namespace lgfx
 
     setVideoTiming(&vt);
     setScaling(_scale_w, _scale_h);
+
+    video_clock_t vc;
+    vc.input_divider = 11;
+    vc.feedback_divider = 4;
+    vc.output_divider = 32;
+    _set_video_clock(&vc);
 
     if (!res)
     {
@@ -1189,6 +1197,38 @@ namespace lgfx
     cmd.back = getSwap16(param->back_porch);
     cmd.active = getSwap16(param->active);
     cmd.front = getSwap16(param->front_porch);
+    uint_fast8_t sum = 0;
+    for (size_t i = 0; i < sizeof(cmd_t)-1; ++i)
+    {
+      sum += cmd.raw[i];
+    }
+    cmd.chksum = ~sum;
+
+    startWrite();
+    waitDisplay();
+    _bus->writeBytes(cmd.raw, sizeof(cmd_t), false, false);
+    endWrite();
+  }
+
+  void Panel_M5HDMI::_set_video_clock(const video_clock_t* param)
+  {
+    union cmd_t
+    {
+      uint8_t raw[8];
+      struct __attribute__((packed))
+      {
+        uint8_t cmd;
+        uint16_t input_divider;
+        uint16_t feedback_divider;
+        uint16_t output_divider;
+        uint8_t chksum;
+      };
+    };
+    cmd_t cmd;
+    cmd.cmd = CMD_VIDEO_CLOCK;
+    cmd.input_divider = getSwap16(param->input_divider);
+    cmd.feedback_divider = getSwap16(param->feedback_divider);
+    cmd.output_divider = getSwap16(param->output_divider);
     uint_fast8_t sum = 0;
     for (size_t i = 0; i < sizeof(cmd_t)-1; ++i)
     {

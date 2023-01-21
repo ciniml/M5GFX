@@ -43,6 +43,13 @@ namespace lgfx
       info_t h;
     };
 
+    struct video_clock_t
+    {
+      uint16_t input_divider;
+      uint16_t feedback_divider;
+      uint16_t output_divider;
+    };
+
     Panel_M5HDMI(void)
     {
       _cfg.memory_width  = _cfg.panel_width = 1280;
@@ -172,6 +179,7 @@ namespace lgfx
 
     static constexpr uint8_t CMD_VIDEO_TIMING_V = 0xB0; // 10Byte 垂直信号のビデオタイミングパラメータ設定
     static constexpr uint8_t CMD_VIDEO_TIMING_H = 0xB1; // 10Byte 水平信号のビデオタイミングパラメータ設定
+    static constexpr uint8_t CMD_VIDEO_CLOCK    = 0xB2; // 7Byte  ビデオ信号のピクセルクロック用パラメータ設定
 
 //  static constexpr uint8_t CMD_UPDATE_BEGIN = 0xF0;
 //  static constexpr uint8_t CMD_UPDATE_DATA  = 0xF1;
@@ -287,6 +295,7 @@ namespace lgfx
     void _check_busy(uint32_t length, bool force = false);
     void _rotate_pixelcopy(uint_fast16_t& x, uint_fast16_t& y, uint_fast16_t& w, uint_fast16_t& h, pixelcopy_t* param, uint32_t& nextx, uint32_t& nexty);
     void _set_video_timing(const video_timing_t::info_t* param, uint8_t cmd);
+    void _set_video_clock(const video_clock_t* param);
     void _copy_rect(uint32_t dst_xy, uint32_t src_xy, uint32_t wh);
   };
 
