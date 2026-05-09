@@ -19,7 +19,13 @@ file(GLOB SRCS
      )
 set(COMPONENT_SRCS ${SRCS})
 
-if (IDF_VERSION_MAJOR GREATER_EQUAL 5)
+if (IDF_VERSION_MAJOR GREATER_EQUAL 6)
+    # IDF 6.0 split out per-peripheral driver components and removed the
+    # legacy driver/i2s.h shim. Pick up the new homes explicitly.
+    set(COMPONENT_REQUIRES nvs_flash efuse driver esp_timer esp_lcd esp_mm
+        esp_driver_ledc esp_driver_i2s esp_driver_gpio esp_driver_spi
+        esp_driver_i2c esp_psram esp_rom)
+elseif (IDF_VERSION_MAJOR GREATER_EQUAL 5)
     set(COMPONENT_REQUIRES nvs_flash efuse driver esp_timer esp_lcd esp_mm)
 elseif ((IDF_VERSION_MAJOR EQUAL 4) AND (IDF_VERSION_MINOR GREATER 3) OR IDF_VERSION_MAJOR GREATER 4)
     set(COMPONENT_REQUIRES nvs_flash efuse esp_lcd)

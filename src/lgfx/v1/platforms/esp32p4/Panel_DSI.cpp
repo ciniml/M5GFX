@@ -91,16 +91,10 @@ namespace lgfx
     dpi_config.video_timing.vsync_back_porch  = _config_detail.vsync_back_porch;
     dpi_config.video_timing.vsync_pulse_width = _config_detail.vsync_pulse_width;
     dpi_config.video_timing.vsync_front_porch = _config_detail.vsync_front_porch;
-  #if !defined (ESP_IDF_VERSION_VAL) || (ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(6, 0, 0))
+    // IDF 5 and IDF 6 both expose DMA2D via dpi_config.flags.use_dma2d;
+    // IDF 6 does not provide a separate esp_lcd_dpi_panel_enable_dma2d().
     dpi_config.flags.use_dma2d = true;
-  #endif
     auto ret = esp_lcd_new_panel_dpi(mipi_dsi_bus, &dpi_config, &_disp_panel_handle);
-  #if defined (ESP_IDF_VERSION_VAL) && (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0))
-    if (ret == ESP_OK)
-    {
-      (void)esp_lcd_dpi_panel_enable_dma2d(_disp_panel_handle);
-    }
-  #endif
     return ret == ESP_OK;
   }
 

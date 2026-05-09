@@ -35,6 +35,13 @@ Contributors:
  #include <driver/i2s.h>
 #endif
 
+// IDF 6.0 dropped the legacy i2s_port_t typedef. Provide a compat shim;
+// I2S_NUM_x macros are still present (just integers now).
+#include <esp_idf_version.h>
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+typedef int i2s_port_t;
+#endif
+
 #include "../../Bus.hpp"
 #include "../common.hpp"
 
